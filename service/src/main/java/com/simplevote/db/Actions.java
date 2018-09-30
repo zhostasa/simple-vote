@@ -1,10 +1,12 @@
 package com.simplevote.db;
 
+import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.NoSuchElementException;
 
 import com.auth0.jwt.JWT;
+import com.simplevote.api.MtmAPI;
 import com.simplevote.tools.Tools;
 import com.simplevote.types.QuestionType;
 import com.simplevote.types.User;
@@ -36,6 +38,8 @@ public class Actions {
         Tables.User dbUser = Tables.User.findFirst("name = ? or email = ?", userOrEmail, userOrEmail);
 
         if (dbUser == null) {
+            callAuthenticationAPIs(userOrEmail, password);
+
             throw new NoSuchElementException("Incorrect user/email");
         } else {
 
@@ -98,6 +102,15 @@ public class Actions {
             throw new NoSuchElementException("Username/email already exists");
         }
 
+    }
+
+    public static User callAuthenticationAPIs(String userOrEmail, String password){
+        try {
+            MtmAPI.validateUser(userOrEmail, password);
+        } catch (IOException e) {
+            throw new NoSuchElementException("Unable to contact Mattermost API");
+        }
+        return null;
     }
 
     public static void deleteUser(Long userId) {
