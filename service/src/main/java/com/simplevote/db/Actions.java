@@ -35,27 +35,18 @@ public class Actions {
 
         // Find the user, then create a login for them
 
-        Tables.User dbUser = Tables.User.findFirst("name = ? or email = ?", userOrEmail, userOrEmail);
-
-        if (dbUser == null) {
-            callAuthenticationAPIs(userOrEmail, password);
-
-            throw new NoSuchElementException("Incorrect user/email");
-        } else {
-
-            String encryptedPassword = dbUser.getString("password_encrypted");
-            Boolean correctPass = Tools.PASS_ENCRYPT.checkPassword(password, encryptedPassword);
-
-            if (correctPass) {
-                return createUserObj(dbUser, true);
-            } else {
-                throw new NoSuchElementException("Incorrect Password");
+        if (callAuthenticationAPIs(userOrEmail, password)) {
+            Tables.User dbUser = Tables.User.findFirst("email = ?", userOrEmail);
+            if (dbUser == null) {
+                dbUser = Tables.User.createIt("email", userOrEmail);
             }
-        }
+            return createUserObj(dbUser, true);
+
+        } else throw new NoSuchElementException("Incorrect login information");
     }
 
     public static User signup(Long loggedInUserId, String userName, String password, String verifyPassword,
-            String email) {
+                              String email) {
 
         if (email != null && email.equals("")) {
             email = null;
@@ -66,9 +57,9 @@ public class Actions {
         }
 
         // Find the user, then create a login for them
-        
+
         LazyList<Tables.User> users;
-		if (email != null) {
+        if (email != null) {
             users = Tables.User.find("name = ? or email = ?", userName, email);
         } else {
             users = Tables.User.find("name = ?", userName);
@@ -82,7 +73,7 @@ public class Actions {
         } else {
             uv = null;
         }
-        
+
         if (uv == null) {
             // Create the user and full user
             Tables.User user = Tables.User.createIt("name", userName);
@@ -104,13 +95,18 @@ public class Actions {
 
     }
 
-    public static User callAuthenticationAPIs(String userOrEmail, String password){
+    public static boolean callAuthenticationAPIs(String userOrEmail, String password) {
+        boolean mtmAuth = false;
         try {
-            MtmAPI.validateUser(userOrEmail, password);
+            mtmAuth = MtmAPI.validateUser(userOrEmail, password);
         } catch (IOException e) {
             throw new NoSuchElementException("Unable to contact Mattermost API");
         }
-        return null;
+
+        boolean fabManAuth = false;
+
+
+        return mtmAuth || fabManAuth;
     }
 
     public static void deleteUser(Long userId) {
@@ -126,7 +122,7 @@ public class Actions {
     }
 
     public static Tables.Poll updatePoll(Long pollId, String title, Boolean usersCanAddQuestions,
-            String predefinedUserList) {
+                                         String predefinedUserList) {
         Tables.Poll p = Tables.Poll.findFirst("id = ?", pollId);
         if (title != null)
             p.set("title", title);
@@ -149,7 +145,7 @@ public class Actions {
     }
 
     public static Tables.Question updateQuestion(Long questionId, String title, Long expireTime, Integer threshold,
-            Boolean usersCanAddCandidates, Boolean anonymous, Integer questionTypeId) {
+                                                 Boolean usersCanAddCandidates, Boolean anonymous, Integer questionTypeId) {
         Tables.Question q = Tables.Question.findById(questionId);
 
         // TODO do userCanAddCandidates validation on front end

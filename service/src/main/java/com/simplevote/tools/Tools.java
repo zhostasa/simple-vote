@@ -116,6 +116,8 @@ public class Tools {
     public static final Map<String, String> createMapFromReqBody(String reqBody) {
 
         Map<String, String> map = new HashMap<>();
+
+        System.out.println(reqBody);
         try {
             map = JACKSON.readValue(reqBody, mapType);
         } catch (IOException e) {

@@ -3,17 +3,16 @@ package com.simplevote.api;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.simplevote.DataSources;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
 public class MtmAPI {
 
-    private static final String MTM_API_URL_KEY="mattermost.api.url";
+    private static final String MTM_API_URL_KEY = "mattermost.api.url";
     private static final String MTM_LOGIN_API = "users/login";
+
 
     public static boolean validateUser(String email, String password) throws IOException {
 
@@ -29,26 +28,18 @@ public class MtmAPI {
         os.write(input.getBytes());
         os.flush();
 
-        if (conn.getResponseCode() != HttpURLConnection.HTTP_CREATED) {
-            throw new RuntimeException("Failed : HTTP error code : "
-                    + conn.getResponseCode());
-        }
+        conn.connect();
 
-        BufferedReader br = new BufferedReader(new InputStreamReader(
-                (conn.getInputStream())));
+        if (conn.getResponseCode() == HttpURLConnection.HTTP_UNAUTHORIZED)
+            return false;
 
-        String output;
-        System.out.println("Output from Server .... \n");
-        while ((output = br.readLine()) != null) {
-            System.out.println(output);
-        }
+        if (conn.getResponseCode() != HttpURLConnection.HTTP_OK)
+            throw new IOException("Unable to authorize via Mattermost, http response " + conn.getResponseCode() + " : " + conn.getResponseMessage());
 
-        conn.disconnect();
-
-        return false;
+        return true;
     }
 
-    private static class LoginCall{
+    private static class LoginCall {
 
         private String login_id;
         private String password;
