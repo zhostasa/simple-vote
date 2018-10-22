@@ -40,7 +40,7 @@ public class Actions {
         if (callAuthenticationAPIs(userOrEmail, password)) {
             Tables.User dbUser = Tables.User.findFirst("email = ?", userOrEmail);
             if (dbUser == null) {
-                dbUser = Tables.User.createIt("email", userOrEmail);
+                dbUser = Tables.User.createIt("email", userOrEmail, "name", userOrEmail.split("@")[0]);
             }
             return createUserObj(dbUser, true);
 
