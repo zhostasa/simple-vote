@@ -1,11 +1,13 @@
 package com.simplevote.db;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.NoSuchElementException;
 
 import com.auth0.jwt.JWT;
+import com.simplevote.api.FabManAPI;
 import com.simplevote.api.MtmAPI;
 import com.simplevote.tools.Tools;
 import com.simplevote.types.QuestionType;
@@ -98,12 +100,17 @@ public class Actions {
     public static boolean callAuthenticationAPIs(String userOrEmail, String password) {
         boolean mtmAuth = false;
         try {
-            mtmAuth = MtmAPI.validateUser(userOrEmail, password);
+            mtmAuth = new MtmAPI().validateUser(userOrEmail, password);
         } catch (IOException e) {
-            throw new NoSuchElementException("Unable to contact Mattermost API");
+            throw new UncheckedIOException("Unable to contact Mattermost API", e);
         }
 
         boolean fabManAuth = false;
+        try {
+            fabManAuth = new FabManAPI().validateUser(userOrEmail, password);
+        } catch (IOException e) {
+            throw new UncheckedIOException("Unable to contact Fabman API", e);
+        }
 
 
         return mtmAuth || fabManAuth;

@@ -6,37 +6,27 @@ import com.simplevote.DataSources;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 
-public class MtmAPI {
+public class MtmAPI extends AbstractRestLoginAPI {
 
     private static final String MTM_API_URL_KEY = "mattermost.api.url";
     private static final String MTM_LOGIN_API = "users/login";
 
+    @Override
+    protected URL getURL() throws MalformedURLException {
+        return new URL(DataSources.PROPERTIES.getProperty(MTM_API_URL_KEY) + MTM_LOGIN_API);
+    }
 
-    public static boolean validateUser(String email, String password) throws IOException {
+    @Override
+    protected int getFailedLoginResponseCode() {
+        return HttpURLConnection.HTTP_UNAUTHORIZED;
+    }
 
-        URL url = new URL(DataSources.PROPERTIES.getProperty(MTM_API_URL_KEY) + MTM_LOGIN_API);
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-        conn.setDoOutput(true);
-        conn.setRequestMethod("POST");
-        conn.setRequestProperty("Content-Type", "application/json");
-
-        String input = new ObjectMapper().writeValueAsString(new LoginCall(email, password));
-
-        OutputStream os = conn.getOutputStream();
-        os.write(input.getBytes());
-        os.flush();
-
-        conn.connect();
-
-        if (conn.getResponseCode() == HttpURLConnection.HTTP_UNAUTHORIZED)
-            return false;
-
-        if (conn.getResponseCode() != HttpURLConnection.HTTP_OK)
-            throw new IOException("Unable to authorize via Mattermost, http response " + conn.getResponseCode() + " : " + conn.getResponseMessage());
-
-        return true;
+    @Override
+    protected Object getBody(String email, String password) {
+        return new LoginCall(email, password);
     }
 
     private static class LoginCall {
