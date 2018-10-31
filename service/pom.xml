@@ -12,9 +12,6 @@
 		<main.class>com.simplevote.webservice.WebService</main.class>
 		<activejdbc.version>1.4.13</activejdbc.version>
 		<version>${project.version}</version>
-
-		<mattermost.api.url>https://mtm.fablabbrno.cz/api/v4/</mattermost.api.url>
-		<fabman.api.url>https://fabman.io/api/v1/</fabman.api.url>
 	</properties>
 
 
