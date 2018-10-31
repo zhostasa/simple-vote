@@ -43,16 +43,16 @@ public class Endpoints {
 
     public static void user() {
 
-//        post("/user", (req, res) -> {
-//
-//            Map<String, String> vars = Tools.createMapFromReqBody(req.body());
-//
-//            String name = vars.get("name");
-//            User user = Actions.createNewSimpleUser(name);
-//
-//            return user.getJwt();
-//
-//        });
+        post("/user", (req, res) -> {
+
+            Map<String, String> vars = Tools.createMapFromReqBody(req.body());
+
+            String name = vars.get("name");
+            User user = Actions.createNewSimpleUser(name);
+
+            return user.getJwt();
+
+        });
 
         post("/login", (req, res) -> {
 

@@ -29,7 +29,7 @@ public class Actions {
 
 
     public static User createNewSimpleUser(String name) {
-        Tables.User user = Tables.User.createIt("name", name);
+        Tables.User user = Tables.User.createIt("name", name.split("@")[0]);
         return createUserObj(user, false);
     }
 
