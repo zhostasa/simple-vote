@@ -1,7 +1,6 @@
-package com.simplevote.api;
+package com.simplevote.api.login;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.simplevote.DataSources;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -11,8 +10,7 @@ import java.net.URL;
 
 public abstract class AbstractRestLoginAPI implements LoginAPI{
 
-    public boolean validateUser(String email, String password) throws IOException {
-
+    private HttpURLConnection makeAPICall(String email, String password) throws IOException{
         HttpURLConnection conn = (HttpURLConnection) getURL().openConnection();
         conn.setDoOutput(true);
         conn.setRequestMethod("POST");
@@ -26,6 +24,13 @@ public abstract class AbstractRestLoginAPI implements LoginAPI{
 
         conn.connect();
 
+        return conn;
+    }
+
+    public boolean validateUser(String email, String password) throws IOException {
+
+        HttpURLConnection conn = makeAPICall(email, password);
+
         if (conn.getResponseCode() == getFailedLoginResponseCode())
             return false;
 
@@ -33,6 +38,18 @@ public abstract class AbstractRestLoginAPI implements LoginAPI{
             throw new IOException("Unable to authorize, http response " + conn.getResponseCode() + " : " + conn.getResponseMessage());
 
         return true;
+    }
+
+    public String getToken(String email, String password) throws IOException{
+        HttpURLConnection conn = makeAPICall(email, password);
+
+        if (conn.getResponseCode() == getFailedLoginResponseCode())
+            return null;
+
+        if (conn.getResponseCode() != HttpURLConnection.HTTP_OK)
+            throw new IOException("Unable to authorize for token, http response " + conn.getResponseCode() + " : " + conn.getResponseMessage());
+
+        return conn.getHeaderField("token");
     }
 
     protected abstract URL getURL() throws MalformedURLException;

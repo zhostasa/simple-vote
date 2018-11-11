@@ -1,10 +1,7 @@
-package com.simplevote.api;
+package com.simplevote.api.login;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.simplevote.DataSources;
 
-import java.io.IOException;
-import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;

@@ -1,8 +1,7 @@
-package com.simplevote.api;
+package com.simplevote.api.login;
 
 import com.simplevote.DataSources;
 
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 

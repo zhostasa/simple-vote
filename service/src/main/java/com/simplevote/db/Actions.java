@@ -7,14 +7,14 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import com.auth0.jwt.JWT;
-import com.simplevote.api.FabManAPI;
-import com.simplevote.api.MtmAPI;
+import com.simplevote.api.comments.MtmCommentsAPI;
+import com.simplevote.api.login.FabManAPI;
+import com.simplevote.api.login.MtmAPI;
 import com.simplevote.tools.Tools;
 import com.simplevote.types.QuestionType;
 import com.simplevote.types.User;
 
 import org.javalite.activejdbc.LazyList;
-import org.javalite.activejdbc.Model;
 
 import ch.qos.logback.classic.Logger;
 import org.slf4j.LoggerFactory;
@@ -109,7 +109,7 @@ public class Actions {
         try {
             fabManAuth = new FabManAPI().validateUser(userOrEmail, password);
         } catch (IOException e) {
-            throw new UncheckedIOException("Unable to contact Fabman API", e);
+            throw new UncheckedIOException(e.getMessage(), e);
         }
 
 
@@ -209,16 +209,19 @@ public class Actions {
         Tables.Vote.findFirst("user_id = ? and candidate_id = ?", userId, candidateId).delete();
     }
 
-    public static Tables.Comment createComment(Long userId, Long pollId, String comment) {
-        return Tables.Comment.createIt("user_id", userId, "poll_id", pollId, "comment", comment);
+    public static Tables.Comment createComment(Long userId, Long pollId, String comment) throws IOException {
+        return MtmCommentsAPI.getCommentsAPI().createComment(userId, pollId, comment);
+        //Tables.Comment.createIt("user_id", userId, "poll_id", pollId, "comment", comment);
     }
 
-    public static void deleteComment(Long commentId) {
-        Tables.Comment.findById(commentId).delete();
+    public static void deleteComment(Long commentId) throws IOException {
+        MtmCommentsAPI.getCommentsAPI().deleteComment(commentId);
+        //Tables.Comment.findById(commentId).delete();
     }
 
-    public static LazyList<Tables.Comment> getPollComments(Long pollId) {
-        return Tables.Comment.find("poll_id = ?", pollId).orderBy("created");
+    public static LazyList<Tables.Comment> getPollComments(Long pollId) throws IOException {
+        return MtmCommentsAPI.getCommentsAPI().getPollComments(pollId);
+        //Tables.Comment.find("poll_id = ?", pollId).orderBy("created");
     }
 
     public static LazyList<Tables.User> getPollUsers(Long pollId) {

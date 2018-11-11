@@ -19,6 +19,7 @@ import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import org.javalite.activejdbc.LazyList;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -157,7 +158,7 @@ public class PollWebSocket {
     return MessageType.values()[node.get("message_type").asInt()];
   }
 
-  public void createComment(Session session, JsonNode data) {
+  public void createComment(Session session, JsonNode data) throws IOException {
     Long pollId = getPollIdFromSession(session);
     Long userId = getUserFromSession(session).getId();
 
@@ -167,7 +168,7 @@ public class PollWebSocket {
 
   }
 
-  public void deleteComment(Session session, JsonNode data) {
+  public void deleteComment(Session session, JsonNode data) throws IOException {
     Long pollId = getPollIdFromSession(session);
     Long commentId = data.get("comment_id").asLong();
     Actions.deleteComment(commentId);
