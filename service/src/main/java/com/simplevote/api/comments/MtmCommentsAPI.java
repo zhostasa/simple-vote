@@ -69,6 +69,7 @@ public class MtmCommentsAPI implements CommentsAPI {
             Tables.Comment comment = new Tables.Comment();
             comment.set("comment", postsResponse.getPosts().get(post).getMessage());
             comment.set("poll_id", pollId);
+            comment.set("user_id", 1);
             list.add(comment);
         }
 

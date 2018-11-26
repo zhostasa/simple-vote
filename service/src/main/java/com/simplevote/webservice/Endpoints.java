@@ -5,11 +5,13 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.simplevote.DataSources;
 import com.simplevote.api.comments.MtmCommentsAPI;
 import com.simplevote.db.Actions;
+import com.simplevote.db.Tables;
 import com.simplevote.tools.Tools;
 import com.simplevote.types.User;
 import org.eclipse.jetty.http.HttpStatus;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import java.util.Map;
 
 import static spark.Spark.*;
@@ -70,7 +72,10 @@ public class Endpoints {
 
         post("/testComments", (req, res) -> {
 
-            MtmCommentsAPI.getCommentsAPI().getPollComments(10l);
+            List<Tables.Comment> list = MtmCommentsAPI.getCommentsAPI().getPollComments(10l);
+
+            for (Tables.Comment comment: list)
+                System.out.println(comment.get("comment"));
 
             return null;
 
