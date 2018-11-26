@@ -3,6 +3,7 @@ package com.simplevote.webservice;
 import ch.qos.logback.classic.Logger;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.simplevote.DataSources;
+import com.simplevote.api.comments.MtmCommentsAPI;
 import com.simplevote.db.Actions;
 import com.simplevote.tools.Tools;
 import com.simplevote.types.User;
@@ -64,6 +65,14 @@ public class Endpoints {
             User userObj = Actions.login(userOrEmail, password);
 
             return userObj.getJwt();
+
+        });
+
+        post("/testComments", (req, res) -> {
+
+            MtmCommentsAPI.getCommentsAPI().getPollComments(10l);
+
+            return null;
 
         });
 
